@@ -12,7 +12,6 @@ from sklearn.metrics import (
     accuracy_score
 )
 
-import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import (
     LSTM,
@@ -229,7 +228,7 @@ model = Sequential([
 
 model.compile(
     optimizer='adam',
-    loss='sparse_categorical_crossentropy',
+    loss='sparse_categorical_cross_entropy',
     metrics=['accuracy']
 )
 

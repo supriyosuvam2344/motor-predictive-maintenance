@@ -65,6 +65,7 @@ async def root():
 
 @app.post("/predict")
 async def predict_motor_health(data: MotorData):
+    # noinspection PyShadowingNames
     try:
         # Define the exact column names the model was trained on
         feature_names = [

@@ -12,7 +12,6 @@ dl_model/.venv_dl/
 ml_model/.venv_ml/
 
 # Python cache
-__pycache__/
 *.pyc
 
 # Trained models
