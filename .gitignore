@@ -1,5 +1,22 @@
 __pycache__/
 
 
+# PyCharm
+.idea/
 
+# Virtual environments
+.venv/
+venv/
+backend/.venv_api/
+dl_model/.venv_dl/
+ml_model/.venv_ml/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Trained models
+*.pkl
+*.keras
+*.h5
 *.log
