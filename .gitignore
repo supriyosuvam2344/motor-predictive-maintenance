@@ -1,0 +1,21 @@
+# Virtual environments
+.venv/
+venv/
+ml_model/.venv_ml/
+dl_model/.venv_dl/
+backend/.venv_api/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# PyCharm
+.idea/
+
+# Models
+*.h5
+*.keras
+*.pkl
+
+# Logs
+*.log
