@@ -144,10 +144,11 @@ async def predict_motor_health(data: MotorData):
         # ==========================================
         # 3. LSTM Deep Learning (Time-Series Analysis)
         # ==========================================
-        lstm_status = "Waiting for data..."
 
         # Only run the neural network if we have collected 30 consecutive readings
         if len(telemetry_buffer) == SEQUENCE_LENGTH:
+            lstm_status = "Waiting for data..."
+
             # Convert memory to a pandas dataframe so the scaler can read it
             buffer_df = pd.DataFrame(list(telemetry_buffer), columns=feature_names)
 
@@ -186,7 +187,7 @@ async def predict_motor_health(data: MotorData):
             "deformity_code": int(deformity_prediction),
             "estimated_rul_hours": round(float(predicted_hours), 1),
             "maintenance_urgency": urgency,
-            "ai_explanations": explanations,
+            "a i_explanations": explanations,
             "lstm_time_series_analysis": lstm_status
         }
 

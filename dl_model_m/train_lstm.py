@@ -261,8 +261,8 @@ history = model.fit(
     batch_size=64,
     validation_split=0.2,
     callbacks=[early_stop, reduce_lr],
-    # NEW: Force the model to care 4x more about predicting 1s than 0s
-    class_weight={0: 1.0, 1: 4.0},
+    # NEW: Force the model to care 2x more about predicting 1s than 0s
+    class_weight={0: 1.0, 1: 2.0},
     verbose=1
 )
 
