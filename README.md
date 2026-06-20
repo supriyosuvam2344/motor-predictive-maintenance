@@ -1,1 +1,1 @@
-# motor-predictive-maintenance
+# Motor-Predictive-Maintenance

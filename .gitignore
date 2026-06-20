@@ -7,14 +7,14 @@ __pycache__/
 # Virtual environments
 .venv/
 venv/
-backend/.venv_api/
-dl_model/.venv_dl/
-ml_model/.venv_ml/
+backend_m/.venv_api/
+dl_model_m/.venv_dl/
+ml_model_m/.venv_ml/
 
 # Python cache
 *.pyc
 
-# Trained models
+# Trained models_m
 *.pkl
 *.keras
 *.h5

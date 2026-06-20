@@ -5,13 +5,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
-DATASET_PATH = "../dataset/motor_data.csv"
+DATASET_PATH = "../dataset_m/motor_data.csv"
 MODEL_SAVE_PATH = "rul_model.pkl"
 SCALER_SAVE_PATH = "scaler_rul.pkl"
 
 
 def main():
-    print("Loading dataset for RUL Prediction...")
+    print("Loading dataset_m for RUL Prediction...")
     df = pd.read_csv(DATASET_PATH)
 
     features = [

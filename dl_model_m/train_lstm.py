@@ -28,16 +28,16 @@ from tensorflow.keras.callbacks import (
 # PATHS
 # ============================================
 
-DATASET_PATH = "../dataset/motor_data.csv"
-MODEL_SAVE_PATH = "lstm_model.keras"
-SCALER_SAVE_PATH = "scaler_lstm.pkl"
-ENCODER_PATH = "label_encoder.pkl"
+DATASET_PATH = "../dataset_m/motor_data.csv"
+MODEL_SAVE_PATH = "../models_m/lstm_model.keras"
+SCALER_SAVE_PATH = "../models_m/scaler_lstm.pkl"
+ENCODER_PATH = "../models_m/label_encoder.pkl"
 
 # ============================================
 # LOAD DATA
 # ============================================
 
-print("Loading dataset...")
+print("Loading dataset_m...")
 
 df = pd.read_csv(DATASET_PATH)
 
@@ -228,7 +228,7 @@ model = Sequential([
 
 model.compile(
     optimizer='adam',
-    loss='sparse_categorical_cross_entropy',
+    loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
 )
 
@@ -255,20 +255,14 @@ reduce_lr = ReduceLROnPlateau(
 print("Training LSTM...")
 
 history = model.fit(
-
     X_train,
     y_train,
-
     epochs=50,
     batch_size=64,
-
     validation_split=0.2,
-
-    callbacks=[
-        early_stop,
-        reduce_lr
-    ],
-
+    callbacks=[early_stop, reduce_lr],
+    # NEW: Force the model to care 4x more about predicting 1s than 0s
+    class_weight={0: 1.0, 1: 4.0},
     verbose=1
 )
 
@@ -300,8 +294,8 @@ print(
     classification_report(
         y_test,
         y_pred,
-        target_names=
-        label_encoder.classes_
+        # Convert the integer classes to strings so sklearn can format the table
+        target_names=[str(c) for c in label_encoder.classes_]
     )
 )
 
@@ -330,15 +324,15 @@ import joblib
 from tensorflow.keras.models import load_model
 
 model = load_model(
-    "lstm_model.keras"
+    "../models_m/lstm_model.keras"
 )
 
 scaler = joblib.load(
-    "scaler_lstm.pkl"
+    "../models_m/scaler_lstm.pkl"
 )
 
 encoder = joblib.load(
-    "label_encoder.pkl"
+    "../models_m/label_encoder.pkl"
 )
 
 # shape:
