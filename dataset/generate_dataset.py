@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 np.random.seed(42)
 
 # Number of rows to generate
-NUM_SAMPLES = 1000
+NUM_SAMPLES = 100000
 
 
 def generate_motor_data():
