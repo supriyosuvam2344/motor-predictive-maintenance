@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report, accuracy_score, mean_absolute_error, r2_score
@@ -17,34 +18,82 @@ RUL_MODEL_SAVE_PATH = "../models_m/rul_model.pkl"
 RUL_SCALER_SAVE_PATH = "../models_m/scaler_rul.pkl"
 
 
+def calculate_rul(row):
+    """Generates synthetic RUL using thermodynamics and vibration physics."""
+    BASE_LIFESPAN = 50000
+    RATED_TEMP = 80.0
+
+    # 1. Temperature Penalty
+    temp = row.get('Bearing_Temp_C', row.get('Temperature_C', 80.0))
+    temp_diff = max(0, temp - RATED_TEMP)
+    temp_penalty = 2 ** (temp_diff / 10.0)
+
+    # 2. Vibration Penalty (Calculate approx RMS from X, Y, Z)
+    vib_x = row.get('Vibration_X_mm_s', 0)
+    vib_y = row.get('Vibration_Y_mm_s', 0)
+    vib_z = row.get('Vibration_Z_mm_s', 0)
+    vib_rms = np.sqrt(vib_x ** 2 + vib_y ** 2 + vib_z ** 2)
+
+    if vib_rms < 2.8:
+        vib_penalty = 1.0
+    elif vib_rms < 7.1:
+        vib_penalty = 1.5
+    else:
+        vib_penalty = 5.0
+
+    # 3. Calculate Final RUL
+    calculated_rul = BASE_LIFESPAN / (temp_penalty * vib_penalty)
+    return max(0.0, calculated_rul)
+
+
 def main():
     print("Loading dataset_m...")
     try:
         df = pd.read_csv(DATASET_PATH)
+        df.columns = df.columns.str.strip()
+
+        # --- FORCED CLEANING ---
+        # 1. Force convert to numeric, turning errors (text/symbols) into NaN
+        df['Anomaly'] = pd.to_numeric(df['Anomaly'], errors='coerce')
+
+        # 2. Now drop the NaNs
+        df = df.dropna(subset=['Anomaly'])
+
+        # 3. Convert to clean integers
+        df['Anomaly'] = df['Anomaly'].astype(int)
+        # -----------------------
+
     except FileNotFoundError:
         print(f"Error: Could not find dataset_m at {DATASET_PATH}")
         return
 
-    # 2. Define the exact 22 features
+    # 2. Define the exact features based on the new dataset image
     features = [
-        'VOLTAGE', 'CURRENT', 'POWER', 'POWER_FACTOR', 'FREQUENCY',
-        'VOLTAGE_IMBALANCE', 'CURRENT_IMBALANCE', 'SPEED', 'TORQUE',
-        'LOAD_PERCENT', 'VIBRATION_X', 'VIBRATION_Y', 'VIBRATION_Z',
-        'VIBRATION_RMS', 'FFT_PEAK_FREQ', 'BEARING_TEMP', 'WINDING_TEMP',
-        'AMBIENT_TEMP', 'TEMP_RISE', 'HUMIDITY', 'EFFICIENCY', 'CURRENT_SPIKE'
+        'Temperature_C', 'Bearing_Temp_C', 'Vibration_X_mm_s', 'Vibration_Y_mm_s',
+        'Vibration_Z_mm_s', 'Current_A', 'Voltage_V', 'Power_kW', 'Power_Factor',
+        'RPM', 'Load_Percent', 'Ambient_Temp_C'
     ]
 
-    if 'DEFORMITY_LABEL' not in df.columns or 'RUL_HOURS' not in df.columns:
-        print("Error: Target columns ('DEFORMITY_LABEL' or 'RUL_HOURS') not found in dataset_m.")
+
+
+    # Handle missing RUL_HOURS dynamically
+    if 'RUL_HOURS' not in df.columns:
+        print("Calculating RUL...")
+        df['RUL_HOURS'] = df.apply(calculate_rul, axis=1)
+
+    # Handle classification target (Anomaly)
+    target_col = 'Anomaly'
+    if target_col not in df.columns:
+        print(f"Error: Target column '{target_col}' not found in dataset.")
         return
 
     X = df[features]
 
     print("\n" + "=" * 50)
-    print(" TASK 1: TRAINING DEFORMITY CLASSIFIER (XGBOOST)")
+    print(" TASK 1: TRAINING ANOMALY CLASSIFIER (XGBOOST)")
     print("=" * 50)
 
-    y_class = df['DEFORMITY_LABEL']
+    y_class = df[target_col]
 
     X_train_c, X_test_c, y_train_c, y_test_c = train_test_split(X, y_class, test_size=0.2, random_state=42)
 
@@ -52,7 +101,7 @@ def main():
     X_train_c_scaled = class_scaler.fit_transform(X_train_c)
     X_test_c_scaled = class_scaler.transform(X_test_c)
 
-    # Initialize XGBoost Classifier (n_jobs=-1 uses all CPU cores for maximum speed)
+    # Initialize XGBoost Classifier
     xgb_clf = XGBClassifier(n_estimators=100, learning_rate=0.1, random_state=42, n_jobs=-1)
     xgb_clf.fit(X_train_c_scaled, y_train_c)
 
@@ -61,7 +110,6 @@ def main():
     print(f"Accuracy: {accuracy_score(y_test_c, y_pred_c) * 100:.2f}%")
     print("\nClassification Report:\n", classification_report(y_test_c, y_pred_c))
 
-    # We keep the old save names so you don't have to rewrite your FastAPI backend_m!
     joblib.dump(xgb_clf, CLASS_MODEL_SAVE_PATH)
     joblib.dump(class_scaler, CLASS_SCALER_SAVE_PATH)
     print(f"Saved: {CLASS_MODEL_SAVE_PATH} & {CLASS_SCALER_SAVE_PATH}")
