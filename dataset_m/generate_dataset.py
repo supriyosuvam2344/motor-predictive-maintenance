@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 # Set random seed
 np.random.seed(42)
 
-NUM_SAMPLES = 500000
+NUM_SAMPLES = 600000
 
 
 def generate_motor_data():
