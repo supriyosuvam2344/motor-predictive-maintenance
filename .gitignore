@@ -23,4 +23,4 @@ ml_model_m/.venv_ml/
 #Test datasets
 dataset_m/motor_data_trial.csv
 dataset_m/motor_dataset_generated 2.csv
-dataset_m/motor_fluctuating_dataset,csv
+dataset_m/motor_fluctuating_dataset.csv
