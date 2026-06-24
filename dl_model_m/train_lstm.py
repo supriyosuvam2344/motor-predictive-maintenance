@@ -69,7 +69,8 @@ def main():
     # TIMESTAMP
     # ============================================
     # dayfirst=True tells Pandas to treat the first number as the day (DD-MM-YYYY)
-    df[time_col] = pd.to_datetime(df[time_col], dayfirst=True)
+    # df[time_col] = pd.to_datetime(df[time_col], dayfirst=True)
+    df[time_col] = pd.to_datetime(df[time_col], format='mixed', dayfirst=True)
     df = df.sort_values([motor_col, time_col])
 
 
