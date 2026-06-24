@@ -145,5 +145,4 @@ def analyze_single_motor(motor_df):
         },
         "lstm_time_series_analysis": lstm_status,
         "ai_explanations": explanations,
-        "graph_data": graph_data
     }
