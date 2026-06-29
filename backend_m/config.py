@@ -33,37 +33,37 @@ def get_fault_from_health(health_percent):
     """Maps a degrading health percentage to a specific fault stage."""
     if health_percent >= 85:
         probs = {
-            0: 0.90,  # Healthy
+            0: 0.90, # Healthy
             1: 0.10  # Overheating
         }
 
     elif health_percent>= 70:
         probs = {
-            1: 0.70,  # Overheating
+            1: 0.70, # Overheating
             2: 0.30  # Shaft Misalignment
         }
 
     elif health_percent>= 55:
         probs = {
-            2: 0.60,  # Shaft Misalignment
+            2: 0.60, # Shaft Misalignment
             3: 0.40  # Rotor Imbalance
         }
 
     elif health_percent>= 35:
         probs = {
-            3: 0.65,  # Rotor Imbalance
+            3: 0.65, # Rotor Imbalance
             4: 0.35  # Winding Short Circuit
         }
 
     elif health_percent>= 15:
         probs = {
-            4: 0.70,  # Winding Short Circuit
+            4: 0.70, # Winding Short Circuit
             5: 0.30  # Bearing Failure
         }
 
     else:
         probs = {
-            5: 0.90,  # Bearing Failure
+            5: 0.90, # Bearing Failure
             6: 0.10  # Residual electrical degradation
         }
 

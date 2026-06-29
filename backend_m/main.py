@@ -61,8 +61,13 @@ async def analyze_motor_dataset(file: UploadFile = File(...)):
                 detail=f"Dataset is missing required columns expected by the ML models: {missing_cols}. Please map your CSV columns or retrain the models."
             )
 
-        # Filter down to just the features we need + the ID
+        # Filter down to just the features we need + the ID + Timestamp!
         columns_to_keep = MODEL_FEATURES + ['MOTOR_ID']
+        
+        # Save the Timestamp from being deleted
+        if 'Timestamp' in df.columns:
+            columns_to_keep.append('Timestamp')
+            
         df_clean = df[columns_to_keep].dropna().reset_index(drop=True)
 
         if len(df_clean) == 0:

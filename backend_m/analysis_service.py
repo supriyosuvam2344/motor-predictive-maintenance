@@ -32,26 +32,73 @@ def analyze_single_motor(motor_df):
     graph_ruls = all_predicted_ruls[-100:]
 
     graph_data = []
+    prev_current = None # Used to calculate the Current Spike
+
     for i in range(len(graph_df)):
         row = graph_df.iloc[i]
 
-        # Calculate Vibration RMS on the fly using the X, Y, Z axes
+        # 1. Calculate Vibration RMS
         vib_x = float(row['Vibration_X_mm_s'])
         vib_y = float(row['Vibration_Y_mm_s'])
         vib_z = float(row['Vibration_Z_mm_s'])
         vib_rms = np.sqrt(vib_x ** 2 + vib_y ** 2 + vib_z ** 2)
 
-        graph_data.append({
-            "time_step": i + 1,
-            "rul_hours": float(graph_ruls[i]),
-            "vibration_rms": round(float(vib_rms), 3),  # Added RMS for React Graphs
-            "temperature": float(row['Temperature_C']),
-            "rpm": float(row['RPM'])
-        })
+        # 2. Calculate Thermal Metrics
+        winding_temp = float(row['Temperature_C']) + 15.0
+        temp_rise = winding_temp - float(row['Ambient_Temp_C'])
+
+        # --- 3. NEW: CURRENT SPIKE ---
+        current_a = float(row['Current_A'])
+        if prev_current is None:
+            current_spike = 0.0 # First row has no past to compare to
+        else:
+            current_spike = current_a - prev_current
+        prev_current = current_a # Save this row's current for the next loop
+
+        # --- 4. NEW: EFFICIENCY ---
+        voltage = float(row['Voltage_V'])
+        power_factor = float(row['Power_Factor'])
+        output_power_kw = float(row['Power_kW'])
+
+        # Standard 3-Phase Input Power Formula: (sqrt(3) * V * I * PF) / 1000
+        input_power_kw = (1.732 * voltage * current_a * power_factor) / 1000.0
+
+        # Protect against dividing by zero if the motor is off
+        if input_power_kw > 0:
+            efficiency = (output_power_kw / input_power_kw) * 100.0
+        else:
+            efficiency = 0.0
+
+        # Cap efficiency between 0 and 100% just to keep the graph clean
+        efficiency = min(100.0, max(0.0, efficiency))
+        # --------------------------------
+
+        # Grab all original features from the CSV
+        row_dict = row.to_dict()
+        
+        # Add all custom AI & Derived features to the payload
+        row_dict["time_step"] = i + 1
+        row_dict["rul_hours"] = float(graph_ruls[i])
+        row_dict["vibration_rms"] = round(float(vib_rms), 3)
+        row_dict["WINDING_TEMP"] = round(winding_temp, 2)
+        row_dict["TEMP_RISE"] = round(temp_rise, 2)
+        row_dict["CURRENT_SPIKE"] = round(current_spike, 3)
+        row_dict["EFFICIENCY"] = round(efficiency, 2)
+
+        graph_data.append(row_dict)
 
     # ==========================================
     # ANALYSIS 2: Current Status (The Latest Row)
     # ==========================================
+
+    print(f"\nREAL COLUMNS ARRIVING: {motor_df.columns.tolist()}\n")
+
+# 1. Strip any invisible Excel spaces from the headers
+    motor_df.columns = motor_df.columns.str.strip() 
+
+    # 2. Grab ONLY the exact, real timestamp from the last row
+    latest_timestamp = str(motor_df['Timestamp'].iloc[-1]) 
+
     latest_row = motor_features_only.iloc[-1:]
     current_rul = float(all_predicted_ruls[-1])
 
@@ -136,6 +183,7 @@ def analyze_single_motor(motor_df):
     return {
         "summary": {
             "total_rows_analyzed": len(motor_df),
+            "latest_timestamp": latest_timestamp,
             "physical_status": physical_status,
             "fault_code": current_deformity,
             "fault_type": fault_type,
@@ -145,5 +193,5 @@ def analyze_single_motor(motor_df):
         },
         "lstm_time_series_analysis": lstm_status,
         "ai_explanations": explanations,
-        "graph data": graph_data
+        "graph_data": graph_data
     }
