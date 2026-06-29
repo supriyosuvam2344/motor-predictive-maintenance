@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pandas
+numpy
+scikit-learn
+shap
+python-multipart
+openpyxl
+tensorflow-cpu
