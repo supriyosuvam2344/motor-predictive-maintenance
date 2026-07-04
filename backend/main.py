@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
@@ -14,6 +15,7 @@ app = FastAPI(title="Motor Predictive Maintenance API - Modular Version")
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["*"],
     allow_origins=["http://localhost:3000", "*"],
     allow_credentials=True,
     allow_methods=["*"],
