@@ -1,0 +1,2 @@
+dataset/motor_data.csv filter=lfs diff=lfs merge=lfs -text
+dataset/motor_fluctuating_dataset.csv filter=lfs diff=lfs merge=lfs -text

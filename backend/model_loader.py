@@ -11,14 +11,17 @@ from tensorflow.keras.models import load_model
 # ==========================================
 print("Loading ML & DL models...")
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+
 try:
     # 1. XGBoost Classification Models
-    classifier_model = joblib.load("../ml_model/ensemble_model.pkl")
-    classifier_scaler = joblib.load("../ml_model/scaler_ensemble.pkl")
+    classifier_model = joblib.load(os.path.join(MODELS_DIR, "ensemble_model.pkl"))
+    classifier_scaler = joblib.load(os.path.join(MODELS_DIR, "scaler_ensemble.pkl"))
 
     # 2. XGBoost RUL Models
-    rul_model = joblib.load("../ml_model/rul_model.pkl")
-    rul_scaler = joblib.load("../ml_model/scaler_rul.pkl")
+    rul_model = joblib.load(os.path.join(MODELS_DIR, "rul_model.pkl"))
+    rul_scaler = joblib.load(os.path.join(MODELS_DIR, "scaler_rul.pkl"))
 
     # 3. SHAP Explainer
     print("Initializing SHAP Explainer...")
@@ -26,9 +29,9 @@ try:
 
     # 4. LSTM Deep Learning Models
     print("Loading LSTM Time-Series Models...")
-    lstm_model = load_model("../dl_model/lstm_model.keras")
-    lstm_scaler = joblib.load("../dl_model/scaler_lstm.pkl")
-    lstm_encoder = joblib.load("../dl_model/label_encoder.pkl")
+    lstm_model = load_model(os.path.join(MODELS_DIR, "lstm_model.keras"))
+    lstm_scaler = joblib.load(os.path.join(MODELS_DIR, "scaler_lstm.pkl"))
+    lstm_encoder = joblib.load(os.path.join(MODELS_DIR, "label_encoder.pkl"))
 
     print("All models loaded successfully!")
 

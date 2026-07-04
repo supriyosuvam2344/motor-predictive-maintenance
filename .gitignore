@@ -19,5 +19,3 @@ ml_model/.venv_ml/
 
 # Test datasets (Cleaned up to match your new folder names)
 dataset/motor_data_trial.csv
-dataset/motor_dataset_generated 2.csv
-dataset/motor_fluctuating_dataset.csv

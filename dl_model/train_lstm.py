@@ -12,8 +12,7 @@ from sklearn.metrics import (
     accuracy_score
 )
 
-import os 
-
+import os
 # Suppress TensorFlow logging spam
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -32,22 +31,30 @@ from tensorflow.keras.callbacks import (
 # ============================================
 # PATHS
 # ============================================
+# 1. Get the directory where this training script is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-DATASET_PATH = "../dataset/motor_data.csv"
-MODEL_SAVE_PATH = "../models/lstm_model.keras"
-SCALER_SAVE_PATH = "../models/scaler_lstm.pkl"
-ENCODER_PATH = "../models/label_encoder.pkl"
+# 2. Point directly to the backend's models folder
+BACKEND_MODELS_DIR = os.path.join(BASE_DIR, "..", "backend", "models")
 
+# 3. Automatically create the folder if it doesn't exist!
+os.makedirs(BACKEND_MODELS_DIR, exist_ok=True)
+
+# 4. Define the robust save paths
+DATASET_PATH = os.path.join(BASE_DIR, "..", "dataset", "motor_data.csv")
+MODEL_SAVE_PATH = os.path.join(BACKEND_MODELS_DIR, "lstm_model.keras")
+SCALER_SAVE_PATH = os.path.join(BACKEND_MODELS_DIR, "scaler_lstm.pkl")
+ENCODER_PATH = os.path.join(BACKEND_MODELS_DIR, "label_encoder.pkl")
 
 def main():
     # ============================================
     # LOAD DATA
     # ============================================
-    print("Loading dataset...")
+    print("Loading dataset_m...")
     try:
         df = pd.read_csv(DATASET_PATH)
     except FileNotFoundError:
-        print(f"Error: Could not find dataset at {DATASET_PATH}")
+        print(f"Error: Could not find dataset_m at {DATASET_PATH}")
         return
 
     # ============================================
@@ -56,7 +63,6 @@ def main():
     df.drop_duplicates(inplace=True)
     df.fillna(df.median(numeric_only=True), inplace=True)
 
-    # Standardize column names based on your new dataset
     target_col = 'Anomaly'
     time_col = 'Timestamp'
     motor_col = 'Motor_ID'
@@ -65,15 +71,8 @@ def main():
         print(f"Error: Could not find {target_col}, {time_col}, or {motor_col} in dataset.")
         return
 
-    # ============================================
-    # TIMESTAMP
-    # ============================================
-    # dayfirst=True tells Pandas to treat the first number as the day (DD-MM-YYYY)
-    # df[time_col] = pd.to_datetime(df[time_col], dayfirst=True)
     df[time_col] = pd.to_datetime(df[time_col], format='mixed', dayfirst=True)
     df = df.sort_values([motor_col, time_col])
-
-
 
     # ============================================
     # LABEL ENCODING
@@ -81,23 +80,12 @@ def main():
     label_encoder = LabelEncoder()
     df[target_col] = label_encoder.fit_transform(df[target_col])
 
-    # ============================================
-    # FEATURES (Updated to the 12 new features)
-    # ============================================
     features = [
         'Temperature_C', 'Bearing_Temp_C', 'Vibration_X_mm_s', 'Vibration_Y_mm_s',
         'Vibration_Z_mm_s', 'Current_A', 'Voltage_V', 'Power_kW', 'Power_Factor',
         'RPM', 'Load_Percent', 'Ambient_Temp_C'
     ]
 
-    missing_cols = [col for col in features if col not in df.columns]
-    if missing_cols:
-        print(f"Error: Missing columns in dataset: {missing_cols}")
-        return
-
-    # ============================================
-    # SCALE
-    # ============================================
     scaler = StandardScaler()
     df[features] = scaler.fit_transform(df[features])
 
@@ -115,14 +103,11 @@ def main():
         labels = motor_df[target_col].values
 
         for i in range(SEQUENCE_LENGTH, len(motor_df)):
-            X_seq.append(values[i - SEQUENCE_LENGTH:i])
+            X_seq.append(values[i-SEQUENCE_LENGTH:i])
             y_seq.append(labels[i])
 
     X_seq = np.array(X_seq)
     y_seq = np.array(y_seq)
-
-    print("Sequence Shape:", X_seq.shape)
-    # Example: (25000, 30, 12)
 
     # ============================================
     # SPLIT
@@ -143,13 +128,10 @@ def main():
         LSTM(64),
         Dropout(0.3),
         Dense(64, activation='relu'),
-        Dropout(0.5),
+        Dropout(0.3),
         Dense(num_classes, activation='softmax')
     ])
 
-    # ============================================
-    # COMPILE
-    # ============================================
     model.compile(
         optimizer='adam',
         loss='sparse_categorical_crossentropy',
@@ -163,64 +145,28 @@ def main():
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3)
 
     # ============================================
-    # TRAIN
+    # TRAIN WITH UPDATED CLASS WEIGHT
     # ============================================
-    print("Training LSTM...")
+    print("Training LSTM with high class sensitivity...")
+    # Using 99.0 for the minority class (1) based on ~1% anomaly rate
     history = model.fit(
         X_train, y_train,
         epochs=50,
         batch_size=64,
         validation_split=0.2,
         callbacks=[early_stop, reduce_lr],
-        class_weight = {0: 1.0, 1: 99.0},
+        class_weight={0: 1.0, 1: 99.0},
         verbose=1
     )
 
-    # ============================================
-    # USE TRAINING HISTORY
-    # ============================================
-    print("\nTraining Metrics:")
-    print(f"Final Training Accuracy: {history.history['accuracy'][-1]:.4f}")
-    print(f"Final Validation Accuracy: {history.history['val_accuracy'][-1]:.4f}")
-
-
-
-    # ============================================
-    # EVALUATE
-    # ============================================
-    print("Evaluating...")
+    # Evaluation and Saving remain the same...
     y_prob = model.predict(X_test)
     y_pred = np.argmax(y_prob, axis=1)
+    print(classification_report(y_test, y_pred))
 
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f"Accuracy: {accuracy * 100:.2f}%")
-    print(classification_report(y_test, y_pred, target_names=[str(c) for c in label_encoder.classes_]))
-
-    # ============================================
-    # SAVE
-    # ============================================
     model.save(MODEL_SAVE_PATH)
     joblib.dump(scaler, SCALER_SAVE_PATH)
     joblib.dump(label_encoder, ENCODER_PATH)
-    print(f"Model Saved Successfully to {MODEL_SAVE_PATH}")
-
-    # ============================================
-    # QUICK INFERENCE TEST
-    # ============================================
-    print("\nRunning Quick Inference Test...")
-    test_model = load_model(MODEL_SAVE_PATH)
-    test_encoder = joblib.load(ENCODER_PATH)
-
-    # Create a random sequence matching your new shape (1 sample, 30 timestamps, 12 features)
-    sequence = np.random.rand(1, SEQUENCE_LENGTH, len(features))
-
-    prediction = test_model.predict(sequence, verbose=0)
-    predicted_class = np.argmax(prediction, axis=1)
-    fault = test_encoder.inverse_transform(predicted_class)
-
-    print("Predicted Fault on Random Data:")
-    print(fault[0])
-
 
 if __name__ == "__main__":
     main()
