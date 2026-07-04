@@ -43,11 +43,11 @@ def main():
     # ============================================
     # LOAD DATA
     # ============================================
-    print("Loading dataset_m...")
+    print("Loading dataset...")
     try:
         df = pd.read_csv(DATASET_PATH)
     except FileNotFoundError:
-        print(f"Error: Could not find dataset_m at {DATASET_PATH}")
+        print(f"Error: Could not find dataset at {DATASET_PATH}")
         return
 
     # ============================================
