@@ -27,10 +27,10 @@ async def root():
 
 
 @app.post("/analyze_dataset")
-async def analyze_motor_dataset(file: UploadFile = File(...)):
+def analyze_motor_dataset(file: UploadFile = File(...)):
     try:
         # 1. Read the uploaded file into Pandas
-        contents = await file.read()
+        contents = file.file.read()
         filename = file.filename.lower()
 
         if filename.endswith(".csv"):
