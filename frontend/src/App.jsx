@@ -108,7 +108,7 @@ function App() {
 
     try {
       // POST the massive CSV to main.py
-      const response = await axios.post('http://127.0.0.1:8000/analyze_dataset', formData, {
+      const response = await axios.post('https://motor-predictive-maintenance.onrender.com/analyze_dataset', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
