@@ -1,27 +1,23 @@
 backend_env/
 __pycache__/
 
-
 # PyCharm
 .idea/
 
 # Virtual environments
 .venv/
 venv/
-backend_m/.venv_api/
-dl_model_m/.venv_dl/
-ml_model_m/.venv_ml/
+backend/.venv_api/
+dl_model/.venv_dl/
+ml_model/.venv_ml/
 
 # Python cache
 *.pyc
 
-# Trained models_m
-*.pkl
-*.keras
-*.h5
+# Logs (Kept blocked so they don't clutter GitHub)
 *.log
 
-#Test datasets
-dataset_m/motor_data_trial.csv
-dataset_m/motor_dataset_generated 2.csv
-dataset_m/motor_fluctuating_dataset.csv
+# Test datasets (Cleaned up to match your new folder names)
+dataset/motor_data_trial.csv
+dataset/motor_dataset_generated 2.csv
+dataset/motor_fluctuating_dataset.csv
