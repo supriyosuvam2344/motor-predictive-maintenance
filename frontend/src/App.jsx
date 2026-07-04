@@ -108,10 +108,8 @@ function App() {
 
     try {
       // POST the massive CSV to main.py
-      const response = await axios.post('https://motor-predictive-maintenance.onrender.com/analyze_dataset', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      
+      const response = await axios.post('https://motor-predictive-maintenance.onrender.com/analyze_dataset', formData);
+
       console.log("BACKEND DATA:", response.data.motor_data);
       setServerData(response.data.motor_data);
       setActiveUnit(response.data.available_motors[0]); // Auto-select the first motor
