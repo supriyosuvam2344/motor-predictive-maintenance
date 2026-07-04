@@ -33,10 +33,10 @@ from tensorflow.keras.callbacks import (
 # PATHS
 # ============================================
 
-DATASET_PATH = "../dataset_m/motor_data.csv"
-MODEL_SAVE_PATH = "../models_m/lstm_model.keras"
-SCALER_SAVE_PATH = "../models_m/scaler_lstm.pkl"
-ENCODER_PATH = "../models_m/label_encoder.pkl"
+DATASET_PATH = "../dataset/motor_data.csv"
+MODEL_SAVE_PATH = "../models/lstm_model.keras"
+SCALER_SAVE_PATH = "../models/scaler_lstm.pkl"
+ENCODER_PATH = "../models/label_encoder.pkl"
 
 
 def main():

@@ -7,15 +7,15 @@ from xgboost import XGBClassifier, XGBRegressor
 import joblib
 
 # 1. Define all paths
-DATASET_PATH = "../dataset_m/motor_data.csv"
+DATASET_PATH = "../dataset/motor_data.csv"
 
 # Classification Paths
-CLASS_MODEL_SAVE_PATH = "../models_m/ensemble_model.pkl"
-CLASS_SCALER_SAVE_PATH = "../models_m/scaler_ensemble.pkl"
+CLASS_MODEL_SAVE_PATH = "../models/ensemble_model.pkl"
+CLASS_SCALER_SAVE_PATH = "../models/scaler_ensemble.pkl"
 
 # Regression Paths
-RUL_MODEL_SAVE_PATH = "../models_m/rul_model.pkl"
-RUL_SCALER_SAVE_PATH = "../models_m/scaler_rul.pkl"
+RUL_MODEL_SAVE_PATH = "../models/rul_model.pkl"
+RUL_SCALER_SAVE_PATH = "../models/scaler_rul.pkl"
 
 
 def calculate_rul(row):
@@ -47,7 +47,7 @@ def calculate_rul(row):
 
 
 def main():
-    print("Loading dataset_m...")
+    print("Loading dataset...")
     try:
         df = pd.read_csv(DATASET_PATH)
         df.columns = df.columns.str.strip()
