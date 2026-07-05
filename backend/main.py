@@ -27,7 +27,7 @@ async def root():
 
 
 @app.post("/analyze_dataset")
-def analyze_motor_dataset(file: UploadFile = File(...)):
+async def analyze_motor_dataset(file: UploadFile = File(...)):
     try:
         # 1. Read the uploaded file into Pandas
         contents = file.file.read()
