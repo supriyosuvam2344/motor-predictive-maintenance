@@ -2,6 +2,12 @@ from fastapi import FastAPI, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
+import sys
+import os
+
+# --- FIX FOR DOCKER IMPORT ERROR ---
+# Add the current backend folder to Python's path so it can find config.py
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Import data from our custom modular files
 from config import MODEL_FEATURES
