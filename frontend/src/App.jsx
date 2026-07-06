@@ -108,7 +108,8 @@ function App() {
 
     try {
       // POST the massive CSV to main.py
-      const response = await axios.post('https://motor-predictive-maintenance-hfn4.onrender.com/analyze_dataset', formData);
+      // const response = await axios.post('https://huggingface.co/spaces/MitaliSwarooop/motor-predictive-api', formData);
+      const response = await axios.post('https://mitaliswarooop-motor-predictive-api.hf.space/analyze_dataset', formData);
 
       console.log("BACKEND DATA:", response.data.motor_data);
       setServerData(response.data.motor_data);
@@ -198,7 +199,7 @@ function App() {
                 </h3>
                 
                 <div style={{ width: '100%', height: 250 }}>
-                  <ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height={400}>
                     <LineChart data={activeMotorReport.graph_data}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                       <XAxis dataKey="time_step" stroke="#888" tick={{ fill: '#888' }} />
