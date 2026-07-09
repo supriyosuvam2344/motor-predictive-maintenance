@@ -187,7 +187,7 @@ def analyze_single_motor(motor_df):
             "physical_status": physical_status,
             "fault_code": current_deformity,
             "fault_type": fault_type,
-            "current_rul_hours": f"{round(current_rul, 1)} hours ({round(current_rul / 24, 1)} days)",
+           "current_rul_hours": round(float(current_rul), 2),
             "current_vibration_rms": round(current_vib_rms, 3),  # Added RMS to summary
             "maintenance_urgency": urgency
         },
