@@ -8,11 +8,12 @@ app_port: 7860
 pinned: false
 ---
 
+
 # ⚙️ Motor Predictive Maintenance Platform
 
 An end-to-end, full-stack predictive maintenance system designed to analyze high-frequency industrial motor telemetry.
 
-By leveraging a hybrid AI architecture combining **XGBoost** and **LSTM**, the platform classifies real-time structural anomalies and predicts the **Remaining Useful Life (RUL)** of critical equipment, helping prevent unplanned downtime and enabling proactive maintenance.
+By leveraging a **hybrid AI architecture combining XGBoost and LSTM**, the platform classifies real-time structural anomalies and predicts the **Remaining Useful Life (RUL)** of critical equipment, helping prevent unplanned downtime and enabling proactive maintenance.
 
 ---
 
@@ -38,17 +39,17 @@ motor-predictive-maintenance/
 
 ### `/frontend`
 
-The **React.js dashboard** visualizes:
+The React.js dashboard visualizes:
 
 * Equipment health
-* Remaining useful life
+* Remaining Useful Life (RUL)
 * Sensor trends
 * Fault predictions
 * Motor performance metrics
 
 ### `/backend`
 
-The **FastAPI server** handles:
+The FastAPI server handles:
 
 * Data ingestion
 * Sensor data preprocessing
@@ -80,6 +81,8 @@ Uses an ensemble **XGBoost classifier** to identify immediate physical faults fr
 * Overheating
 * Other structural anomalies
 
+---
+
 ### ⏳ Remaining Useful Life (RUL) Forecasting
 
 Combines:
@@ -88,6 +91,8 @@ Combines:
 * **XGBoost regression models**
 
 to estimate the remaining operational lifespan of the motor.
+
+---
 
 ### 🧠 Explainable AI (XAI)
 
@@ -98,6 +103,8 @@ This helps operators understand:
 * Which sensor values are driving predictions
 * Why the predicted RUL is increasing or decreasing
 * Which motor parameters require immediate attention
+
+---
 
 ### 🧪 Synthetic Data Generation
 
@@ -113,72 +120,73 @@ Includes custom Python scripts for generating realistic motor telemetry datasets
 
 ## 🖥️ Frontend Dashboard Highlights
 
-The user interface is designed to translate complex industrial sensor data into actionable, operator-friendly insights.
+The user interface was built with a focus on translating complex industrial data into actionable, operator-friendly metrics, featuring a custom-built industrial dark theme.
 
-### 📊 Interactive Data Visualization
+### Multi-Motor Tracking
 
-Powered by **Recharts**, the dashboard dynamically renders:
+The application automatically detects multiple motors within a single dataset upload, such as `M1`, `M2`, and `M3`, and provides seamless tabbed navigation to switch between their independent diagnostic reports.
 
-#### RUL Degradation Trend
+### Intelligent Status Cards
 
-An area chart tracking the predicted remaining lifespan of the motor over time.
+A prominent alert system displays:
 
-#### Vibration vs. Temperature
+* Immediate physical status, such as `WARNING: ROTOR IMBALANCE`
+* Color-coded maintenance urgency
+* Highly precise RUL countdown in **Days, Hours, and Minutes**
 
-A dual-axis line chart visualizing correlations between motor vibration and operating temperature.
+### Integrated SHAP AI Insights
 
-#### Motor Speed Stability
+A dedicated UI panel translates complex SHAP values into readable bullet points, explaining exactly which sensor deviations, such as `Vibration_Y_mm_s`, are actively decreasing the motor's lifespan.
 
-A step-line chart monitoring RPM fluctuations and speed instability.
+### Comprehensive Sensor Telemetry
 
-#### Vibration Intensity Profile
+The dashboard renders a vertically stacked suite of high-contrast line charts tracking every aspect of motor health over time.
 
-A bar chart highlighting vibration spikes that may indicate developing structural faults.
+#### Electrical Metrics
 
-### 🛡️ Resilient UI — Demo Mode
+* Voltage (V)
+* Current (A)
+* Power (kW)
+* Power Factor
 
-The frontend includes an automatic fallback mechanism.
+#### Vibration Analysis
 
-If the live FastAPI backend is unreachable, the dashboard automatically loads high-quality simulated data so the complete interface remains functional for:
+* 3-Axis Structural Vibration (X, Y, Z)
+* Overall Vibration RMS
 
-* Portfolio demonstrations
-* UI testing
-* Offline development
-* Deployment previews
+#### Thermal & Operational Monitoring
+
+* Temperature (°C)
+* Bearing Temperature
+* RPM
+* Load Percentage
 
 ---
 
 ## 🛠️ Technology Stack
 
-### 1. Frontend — UI & Visualization
+### 1. Frontend: UI & Visualization
 
-| Technology   | Purpose                        |
-| ------------ | ------------------------------ |
-| React.js     | Frontend framework             |
-| Vite         | Development and build tool     |
-| Tailwind CSS | UI styling                     |
-| Recharts     | Interactive data visualization |
-| Lucide React | Icons                          |
+* React.js (Vite)
+* Tailwind CSS / Custom Dark Theme
+* React Charting Library
 
-### 2. Backend — API & Inference
+### 2. Backend: API & Inference
 
-| Technology | Purpose               |
-| ---------- | --------------------- |
-| FastAPI    | REST API framework    |
-| Uvicorn    | ASGI server           |
-| Python     | Backend development   |
-| Pandas     | Data processing       |
-| NumPy      | Numerical computation |
-| Joblib     | ML model loading      |
+* FastAPI
+* Uvicorn
+* Python
+* Pandas
+* NumPy
+* Joblib
 
 ### 3. Machine Learning & Deep Learning
 
-| Technology         | Purpose                                 |
-| ------------------ | --------------------------------------- |
-| XGBoost            | Fault classification and RUL regression |
-| Scikit-learn       | Preprocessing and ML utilities          |
-| TensorFlow / Keras | LSTM time-series analysis               |
-| SHAP               | Model interpretability                  |
+* XGBoost
+* Scikit-learn
+* TensorFlow / Keras
+* LSTM Time-Series Networks
+* SHAP
 
 ---
 
@@ -206,11 +214,37 @@ cd motor-predictive-maintenance
 
 ---
 
-### 2. Machine Learning Setup
+### 2. Set Up a Python Virtual Environment
+
+Before running the machine learning scripts or the FastAPI backend, it is recommended to create an isolated Python virtual environment to manage dependencies.
+
+#### Windows
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+#### macOS and Linux
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Once activated, install the required dependencies:
+
+```bash
+pip install -r backend/requirements.txt
+```
+
+---
+
+### 3. Machine Learning Setup
 
 This step is optional if pretrained models are already available.
 
-Navigate to the ML directory:
+Ensure your virtual environment is activated and navigate to the ML directory:
 
 ```bash
 cd ml
@@ -238,18 +272,21 @@ The newly trained `.pkl` and `.keras` model files will automatically be saved to
 
 ---
 
-### 3. Backend Setup
+### 4. Backend Setup
+
+Ensure your virtual environment is activated.
 
 Navigate to the backend directory:
 
 ```bash
+# If you are currently inside the /ml directory
 cd ../backend
 ```
 
-Install the required dependencies:
+Or, from the project root:
 
 ```bash
-pip install -r requirements.txt
+cd backend
 ```
 
 Start the FastAPI development server:
@@ -266,7 +303,7 @@ http://localhost:8000
 
 ---
 
-### 4. Frontend Setup
+### 5. Frontend Setup
 
 Open a new terminal and navigate to the frontend directory:
 
@@ -298,16 +335,16 @@ http://localhost:5173
 
 The project uses a decoupled deployment strategy.
 
-### Frontend — Vercel
+### Frontend: Vercel
 
-The React dashboard is deployed on **Vercel** for:
+The React dashboard is deployed on Vercel for:
 
 * Fast global content delivery
 * Continuous deployment
 * Automated builds
 * Easy frontend hosting
 
-### Backend & ML Inference — Hugging Face Spaces
+### Backend & ML Inference: Hugging Face Spaces
 
 The FastAPI machine learning backend is:
 
@@ -317,7 +354,7 @@ The FastAPI machine learning backend is:
 
 ### Deployment Steps
 
-1. Create a new **Docker Space** on Hugging Face.
+1. Create a new Docker Space on Hugging Face.
 2. Push the backend code and trained models to the Space.
 3. The Dockerfile installs all Python dependencies.
 4. The application loads the trained ML models.
@@ -377,6 +414,24 @@ The platform demonstrates the integration of **full-stack development, machine l
 
 ---
 
-## 📄 Dashboard Link :
+## 📄 Live Dashboard
 
-https://motor-predictive-maintenance.vercel.app
+🚀 **Dashboard:** https://motor-predictive-maintenance.vercel.app
+
+---
+
+## 📌 Future Improvements
+
+* Live IoT sensor integration
+* WebSocket-based real-time telemetry streaming
+* Automated maintenance scheduling
+* Historical motor health comparison
+* Multi-factory equipment monitoring
+* Cloud database integration
+* Advanced alert and notification systems
+
+---
+
+## 📜 License
+
+This project is developed for educational, research, and industrial predictive maintenance experimentation purposes.
