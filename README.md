@@ -244,17 +244,22 @@ pip install -r backend/requirements.txt
 
 This step is optional if pretrained models are already available.
 
-Ensure your virtual environment is activated and navigate to the ML directory:
+Ensure your virtual environment is activated.
+
+Navigate to the dataset directory and generate fresh synthetic motor data:
+
+```bash
+cd dataset
+python generate_dataset.py
+```
+
+Next, navigate to the ML directory to train the models:
+
 
 ```bash
 cd ml
 ```
 
-Generate fresh synthetic motor data:
-
-```bash
-python generate_motor_data_wide.py
-```
 
 Train the XGBoost models:
 
