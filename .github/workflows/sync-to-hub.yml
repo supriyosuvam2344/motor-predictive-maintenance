@@ -1,0 +1,25 @@
+name: Sync to Hugging Face hub
+
+# This tells GitHub to run this script every time you push to the 'main' branch
+on:
+  push:
+    branches: [main]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  sync-to-hub:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true # Crucial if you have large model files (.pkl, .keras)
+
+      - name: Push to Hugging Face Hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        # REPLACE 'MitaliSwarooop' with your exact HF username if different.
+        # REPLACE 'Motor-Predictive-API' with your exact HF Space name from the URL.
+        run: git push https://MitaliSwarooop:$HF_TOKEN@huggingface.co/spaces/MitaliSwarooop/Motor-Predictive-API main
