@@ -1,21 +1,21 @@
+# Environments
 backend_env/
 __pycache__/
-
-# PyCharm
-.idea/
-
-# Virtual environments
 .venv/
 venv/
 backend/.venv_api/
 dl_model/.venv_dl/
 ml_model/.venv_ml/
 
-# Python cache
+# IDE
+.idea/
+
+# Cache
 *.pyc
 
-# Logs (Kept blocked so they don't clutter GitHub)
+# Logs
 *.log
 
-# Test datasets (Cleaned up to match your new folder names)
-dataset/motor_data_trial.csv
+# Data
+*trial_motor_data*.csv
+Additional Datasets/
