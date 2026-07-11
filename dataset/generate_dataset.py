@@ -2,18 +2,21 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
-# Set random seed
-np.random.seed(42)
+# Commented out the fixed seed so that it generates uniquely randomized data every time!
+# np.random.seed(42)
 
 NUM_SAMPLES = 600000
 
 
 def generate_motor_data():
-    print(f"Generating {NUM_SAMPLES} rows with WIDE ranges for stress-testing...")
+    print(f"Generating {NUM_SAMPLES} rows of motor data")
 
     labels = np.random.choice([0, 1], size=NUM_SAMPLES, p=[0.99, 0.01])
-    timestamps = [datetime(2024, 1, 1) + timedelta(minutes=i * 15) for i in range(NUM_SAMPLES)]
-    motor_ids = np.random.choice(['M1', 'M2', 'M3', 'M4', 'M5'], size=NUM_SAMPLES)
+
+    # Changed to 6 data points per minute (1 point every 10 seconds)
+    timestamps = [datetime(2025, 1, 1) + timedelta(seconds=i * 10) for i in range(NUM_SAMPLES)]
+
+    motor_ids = np.random.choice(['M1', 'M2', 'M3'], size=NUM_SAMPLES)
 
     # INCREASED NOISE: Makes the range wider and the signal noisier
     NOISE_MULTIPLIER = 5.0
@@ -49,9 +52,15 @@ def generate_motor_data():
 
     df = pd.DataFrame(data)
 
+    # Generate a unique timestamp string for the filename
+    current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Construct the unique file path
+    output_filename = f"../dataset/trial_motor_data{current_time}.csv"
+
     # Rounding and saving
-    df.to_csv("../dataset_m/motor_data_trial.csv", index=False)
-    print("Success! Data with wide variance saved.")
+    df.to_csv(output_filename, index=False)
+    print(f"Success! Data saved to: {output_filename}")
 
 
 if __name__ == "__main__":
