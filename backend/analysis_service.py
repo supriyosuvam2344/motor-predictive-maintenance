@@ -32,7 +32,7 @@ def analyze_single_motor(motor_df):
     graph_ruls = all_predicted_ruls[-100:]
 
     graph_data = []
-    prev_current = None # Used to calculate the Current Spike
+    prev_current = None  # Used to calculate the Current Spike
 
     for i in range(len(graph_df)):
         row = graph_df.iloc[i]
@@ -50,10 +50,10 @@ def analyze_single_motor(motor_df):
         # --- 3. NEW: CURRENT SPIKE ---
         current_a = float(row['Current_A'])
         if prev_current is None:
-            current_spike = 0.0 # First row has no past to compare to
+            current_spike = 0.0  # First row has no past to compare to
         else:
             current_spike = current_a - prev_current
-        prev_current = current_a # Save this row's current for the next loop
+        prev_current = current_a  # Save this row's current for the next loop
 
         # --- 4. NEW: EFFICIENCY ---
         voltage = float(row['Voltage_V'])
@@ -75,7 +75,7 @@ def analyze_single_motor(motor_df):
 
         # Grab all original features from the CSV
         row_dict = row.to_dict()
-        
+
         # Add all custom AI & Derived features to the payload
         row_dict["time_step"] = i + 1
         row_dict["rul_hours"] = float(graph_ruls[i])
@@ -93,11 +93,11 @@ def analyze_single_motor(motor_df):
 
     print(f"\nREAL COLUMNS ARRIVING: {motor_df.columns.tolist()}\n")
 
-# 1. Strip any invisible Excel spaces from the headers
-    motor_df.columns = motor_df.columns.str.strip() 
+    # 1. Strip any invisible Excel spaces from the headers
+    motor_df.columns = motor_df.columns.str.strip()
 
     # 2. Grab ONLY the exact, real timestamp from the last row
-    latest_timestamp = str(motor_df['Timestamp'].iloc[-1]) 
+    latest_timestamp = str(motor_df['Timestamp'].iloc[-1])
 
     latest_row = motor_features_only.iloc[-1:]
     current_rul = float(all_predicted_ruls[-1])
@@ -109,20 +109,26 @@ def analyze_single_motor(motor_df):
     ensemble_prediction = int(classifier_model.predict(latest_scaled)[0])
 
     if ensemble_prediction == 1:
-        # Force a fault if the Ensemble model detects an anomaly
-        probs_dict = {2: 0.70, 1: 0.30}  # Assigning high-severity faults
+        # Force a fault if the Ensemble model detects a real anomaly
+        probs_dict = {2: 0.70, 1: 0.30}
         current_deformity = random.choices(list(probs_dict.keys()), weights=list(probs_dict.values()))[0]
     else:
         # Fallback to RUL-based degradation logic
         probs_dict = get_fault_from_health(motor_health_percent)
-        current_deformity = random.choices(list(probs_dict.keys()), weights=list(probs_dict.values()))[0]
+        # FIX 1: Stop rolling dice! Pick the highest probability state.
+        # If it is {0: 0.9, 1: 0.1}, it will ALWAYS correctly pick 0 (Healthy).
+        current_deformity = max(probs_dict, key=probs_dict.get)
 
     fault_type = FAULT_MAP.get(current_deformity, "Unknown")
-    physical_status = "Healthy" if current_deformity == 0 else f"Warning: {fault_type}"
+    physical_status = "Healthy" if current_deformity == 0 else f"WARNING: {fault_type}"
 
-    # Determine Urgency
-    if motor_health_percent < 25.0 or ensemble_prediction == 1:
-        urgency = "CRITICAL: Immediate Maintenance Required"
+    # FIX 2: Tie Urgency directly to the physical status!
+    if current_deformity != 0 or ensemble_prediction == 1:
+        # If ANY fault is active, it CANNOT be Nominal.
+        if motor_health_percent < 25.0:
+            urgency = "CRITICAL: Immediate Maintenance Required"
+        else:
+            urgency = f"WARNING: Action Required"
     elif motor_health_percent < ANOMALY_HEALTH_THRESHOLD:
         urgency = "WARNING: Schedule Maintenance Soon"
     else:
@@ -187,7 +193,7 @@ def analyze_single_motor(motor_df):
             "physical_status": physical_status,
             "fault_code": current_deformity,
             "fault_type": fault_type,
-           "current_rul_hours": round(float(current_rul), 2),
+            "current_rul_hours": round(float(current_rul), 2),
             "current_vibration_rms": round(current_vib_rms, 3),  # Added RMS to summary
             "maintenance_urgency": urgency
         },
