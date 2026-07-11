@@ -1,25 +1,63 @@
-name: Sync to Hugging Face hub
+name: Sync to Hugging Face Hub
 
-# This tells GitHub to run this script every time you push to the 'main' branch
 on:
   push:
-    branches: [main]
-  # Allows you to run this workflow manually from the Actions tab
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          lfs: true # Crucial if you have large model files (.pkl, .keras)
+          lfs: true
 
-      - name: Push to Hugging Face Hub
+      - name: Setup Git LFS
+        run: |
+          git lfs install
+          git lfs fetch --all
+          git lfs checkout
+
+      - name: Debug Repository
+        run: |
+          echo "========== HEAD =========="
+          git rev-parse HEAD
+
+          echo ""
+          echo "========== Last 10 commits =========="
+          git log --oneline -10
+
+          echo ""
+          echo "========== Git Status =========="
+          git status
+
+          echo ""
+          echo "========== LFS Files =========="
+          git lfs ls-files
+
+          echo ""
+          echo "========== Searching for deleted dataset =========="
+          git log --all -- dataset/motor_dataset_20260712_013436.csv || true
+
+          echo ""
+          echo "========== Current tree =========="
+          find .
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        # REPLACE 'MitaliSwarooop' with your exact HF username if different.
-        # REPLACE 'Motor-Predictive-API' with your exact HF Space name from the URL.
-        run: git push https://MitaliSwarooop:$HF_TOKEN@huggingface.co/spaces/MitaliSwarooop/Motor-Predictive-API main
+        run: |
+          git remote remove hf || true
+          git remote add hf https://MitaliSwarooop:${HF_TOKEN}@huggingface.co/spaces/MitaliSwarooop/Motor-Predictive-API
+
+          git push --force hf HEAD:main
